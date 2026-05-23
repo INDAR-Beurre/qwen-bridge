@@ -17,8 +17,7 @@ export async function handleQwenCodeCli(req, res, payload) {
     '--output-format', 'stream-json',
     '--include-partial-messages',
     '--bare',
-    '--exclude-tools', '*',
-    '--auth-type', 'qwen-oauth'
+    '--exclude-tools', '*'
   ];
 
   if (modelName) {
