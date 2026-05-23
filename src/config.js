@@ -6,12 +6,13 @@ dotenv.config();
 
 const config = {
   port: parseInt(process.env.PORT || '3000', 10),
-  mode: process.env.QWEN_MODE || 'qwen-code-oauth', // 'qwen-code-oauth' | 'model-studio'
+  mode: process.env.QWEN_MODE || 'qwen-code-oauth', // 'qwen-code-oauth' | 'model-studio' | 'puter'
   qwenBinary: process.env.QWEN_BINARY || 'qwen',
   qwenBaseUrl: process.env.QWEN_BASE_URL,
   qwenApiKey: process.env.QWEN_API_KEY,
   defaultModel: process.env.DEFAULT_MODEL || 'qwen3.6-plus',
   bridgeApiKey: process.env.BRIDGE_API_KEY,
+  puterAuthToken: process.env.PUTER_AUTH_TOKEN,
   logPrompts: process.env.LOG_PROMPTS === 'true',
   allowedModels: (process.env.QWEN_MODELS || '')
     .split(',')
@@ -31,8 +32,8 @@ if (config.mode === 'model-studio') {
   if (!config.qwenApiKey) {
     throw new Error('QWEN_API_KEY is required when QWEN_MODE is set to model-studio');
   }
-} else if (config.mode !== 'qwen-code-oauth') {
-  throw new Error(`Invalid QWEN_MODE: ${config.mode}. Must be either "qwen-code-oauth" or "model-studio"`);
+} else if (config.mode !== 'qwen-code-oauth' && config.mode !== 'puter') {
+  throw new Error(`Invalid QWEN_MODE: ${config.mode}. Must be "qwen-code-oauth", "model-studio", or "puter"`);
 }
 
 // Fallback allowlist if none configured

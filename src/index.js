@@ -3,6 +3,7 @@ import config from './config.js';
 import { authMiddleware } from './middleware/auth.js';
 import { handleModelStudio } from './adapters/modelStudio.js';
 import { handleQwenCodeCli } from './adapters/qwenCodeCli.js';
+import { handlePuter } from './adapters/puter.js';
 import { logger } from './utils/logger.js';
 const app = express();
 app.use(express.json({ limit: '100mb' }));
@@ -75,6 +76,8 @@ app.post('/v1/chat/completions', authMiddleware, async (req, res) => {
     await handleModelStudio(req, res, payload);
   } else if (config.mode === 'qwen-code-oauth') {
     await handleQwenCodeCli(req, res, payload);
+  } else if (config.mode === 'puter') {
+    await handlePuter(req, res, payload);
   } else {
     logger.error(`Invalid backend configuration: ${config.mode}`);
     res.status(500).json({
