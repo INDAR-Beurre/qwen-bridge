@@ -15,8 +15,13 @@ function getPuterClient(req) {
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const extracted = authHeader.substring(7).trim();
-    // Bypasses generic dummy tokens and placeholder values to use .env
-    if (extracted && !extracted.startsWith('sk-') && extracted !== 'placeholder') {
+    // Bypasses generic dummy tokens, placeholder values, and the bridge API key to use .env fallback
+    if (
+      extracted && 
+      !extracted.startsWith('sk-') && 
+      extracted !== 'placeholder' && 
+      extracted !== config.bridgeApiKey
+    ) {
       token = extracted;
     }
   }
