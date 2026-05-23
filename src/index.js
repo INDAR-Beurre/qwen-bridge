@@ -4,9 +4,8 @@ import { authMiddleware } from './middleware/auth.js';
 import { handleModelStudio } from './adapters/modelStudio.js';
 import { handleQwenCodeCli } from './adapters/qwenCodeCli.js';
 import { logger } from './utils/logger.js';
-
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '100mb' }));
 
 // Logging middleware
 app.use((req, res, next) => {
