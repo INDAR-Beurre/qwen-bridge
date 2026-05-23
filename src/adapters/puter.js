@@ -72,7 +72,11 @@ export async function handlePuter(req, res, payload) {
     });
   }
 
-  const modelName = payload.model || config.defaultModel;
+  const rawModel = payload.model || config.defaultModel;
+  let modelName = rawModel;
+  if (modelName.startsWith('qwen') && !modelName.startsWith('qwen/')) {
+    modelName = 'qwen/' + modelName;
+  }
   const requestId = `chatcmpl-${randomUUID()}`;
   const mappedMsgs = mapMessages(payload.messages);
   
