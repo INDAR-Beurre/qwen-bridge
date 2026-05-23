@@ -100,6 +100,15 @@ const server = app.listen(config.port, () => {
   logger.info(`Configured models allowlist: ${config.allowedModels.join(', ')}`);
 });
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+});
+
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM signal received: closing HTTP server');
@@ -107,3 +116,4 @@ process.on('SIGTERM', () => {
     logger.info('HTTP server closed');
   });
 });
+
