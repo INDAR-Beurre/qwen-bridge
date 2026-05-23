@@ -97,6 +97,9 @@ export async function handlePuter(req, res, payload) {
 
   try {
     if (payload.stream) {
+      // 1. Get the stream first to catch any immediate errors (like insufficient funds, network/auth errors) before sending headers
+      const responseStream = await puter.ai.chat(mappedMsgs, chatOptions);
+
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
@@ -105,8 +108,6 @@ export async function handlePuter(req, res, payload) {
       const roleChunk = serializeChunk(requestId, modelName, null, null);
       roleChunk.choices[0].delta = { role: 'assistant' };
       res.write(`data: ${JSON.stringify(roleChunk)}\n\n`);
-
-      const responseStream = await puter.ai.chat(mappedMsgs, chatOptions);
 
       for await (const chunk of responseStream) {
         const text = chunk?.text || "";
@@ -171,13 +172,28 @@ export async function handlePuter(req, res, payload) {
     }
   } catch (error) {
     logger.error("Puter AI completions error:", error);
-    res.status(500).json({
-      error: {
-        message: error.message || "Puter AI execution failed.",
-        type: 'api_error',
-        param: null,
-        code: 'internal_server_error'
-      }
-    });
+    if (res.headersSent) {
+      // If headers were already sent, write an error chunk to the stream and end it
+      const errorPayload = {
+        error: {
+          message: error.message || "Puter AI execution failed.",
+          type: 'api_error',
+          param: null,
+          code: error.code || 'internal_server_error'
+        }
+      };
+      res.write(`data: ${JSON.stringify(errorPayload)}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } else {
+      res.status(500).json({
+        error: {
+          message: error.message || "Puter AI execution failed.",
+          type: 'api_error',
+          param: null,
+          code: error.code || 'internal_server_error'
+        }
+      });
+    }
   }
 }
